@@ -1,0 +1,17 @@
+[project]
+name = "gigachat_api"
+version = "0.0.1"
+description = "Gigachat API service"
+authors = [
+    {name = "Andrey Vorobev", email = "v.andrei_dmitrievich@mail.ru"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.0"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
