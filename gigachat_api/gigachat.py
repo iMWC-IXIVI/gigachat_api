@@ -1,7 +1,9 @@
+import time
 import httpx
 import uuid
 
 from pathlib import Path
+from functools import wraps
 
 
 class GigaChat:
@@ -39,11 +41,20 @@ class GigaChat:
 
         return access_token, expire_token
 
+    @staticmethod
+    def refresh_token(func):
+        @wraps(func)
+        async def wrapper(self, *args, **kwargs):
+            now = int(time.time())
+            if now >= self.expire_token - 60:
+                self.access_token, self.expire_token = self._get_access_token()
+            return await func(self, *args, **kwargs)
+        return wrapper
+
+    @refresh_token
     async def get_models(self):
         url = 'https://gigachat.devices.sberbank.ru/api/v1/models'
         headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
             'Authorization': f'Bearer {self.access_token}'
         }
         return await self.async_http_session.get(url, headers=headers)
