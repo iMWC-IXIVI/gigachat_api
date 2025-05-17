@@ -1,6 +1,5 @@
 import httpx
 import uuid
-import asyncio
 
 from pathlib import Path
 
@@ -13,7 +12,7 @@ class GigaChat:
     def __init__(self, authorization, scope):
         self.authorization = f'Basic {authorization}'
         self.scope = scope
-        self.access_token = self._get_access_token()
+        self.access_token, self.expire_token = self._get_access_token()
 
     def _get_access_token(self):
         url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
@@ -31,12 +30,14 @@ class GigaChat:
         if response.status_code != 200:
             raise RuntimeError(f'Failed get a token - {response.status_code} - {response.text}')
 
-        access_token = response.json().get('access_token')
+        data = response.json()
+        access_token = data.get('access_token')
+        expire_token = data.get('expires_at')
 
-        if not access_token:
+        if not access_token or not expire_token:
             raise RuntimeError(f'Access token not found - {response.json()}')
 
-        return access_token
+        return access_token, expire_token
 
     async def get_models(self):
         url = 'https://gigachat.devices.sberbank.ru/api/v1/models'
@@ -46,3 +47,9 @@ class GigaChat:
             'Authorization': f'Bearer {self.access_token}'
         }
         return await self.async_http_session.get(url, headers=headers)
+
+    def close(self):
+        self.http_session.close()
+
+    async def aclose(self):
+        await self.async_http_session.aclose()
