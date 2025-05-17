@@ -59,6 +59,25 @@ class GigaChat:
         }
         return await self.async_http_session.get(url, headers=headers)
 
+    @refresh_token
+    async def send_message(self, type_model='GigaChat', message='', prompt=''):
+        url = 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions'
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        body = {
+            'model': type_model,
+            'messages': [
+                {'role': 'system', 'content': prompt},
+                {'role': 'user', 'content': message}
+            ],
+            'stream': False,
+            'update_interval': 0
+        }
+        return await self.async_http_session.post(url=url, headers=headers, json=body)
+
     def close(self):
         self.http_session.close()
 
