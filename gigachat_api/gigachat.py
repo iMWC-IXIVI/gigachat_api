@@ -4,6 +4,7 @@ import uuid
 
 from pathlib import Path
 from functools import wraps
+from typing import Tuple
 
 
 class GigaChat:
@@ -29,12 +30,12 @@ class GigaChat:
     http_session = httpx.Client(verify=str(certificate_path))
     async_http_session = httpx.AsyncClient(verify=str(certificate_path))
 
-    def __init__(self, authorization, scope):
+    def __init__(self, authorization: str, scope: str) -> None:
         self.authorization = f'Basic {authorization}'
         self.scope = scope
         self.access_token, self.expire_token = self._get_access_token()
 
-    def _get_access_token(self):
+    def _get_access_token(self) -> Tuple[str, int]:
         url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -70,7 +71,7 @@ class GigaChat:
         return wrapper
 
     @refresh_token
-    async def get_models(self):
+    async def get_models(self) -> httpx.Response:
         url = 'https://gigachat.devices.sberbank.ru/api/v1/models'
         headers = {
             'Authorization': f'Bearer {self.access_token}'
@@ -78,7 +79,7 @@ class GigaChat:
         return await self.async_http_session.get(url, headers=headers)
 
     @refresh_token
-    async def send_message(self, type_model='GigaChat', message='', prompt=''):
+    async def send_message(self, type_model: str = 'GigaChat', message: str = '', prompt: str = '') -> httpx.Response:
         url = 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions'
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -96,8 +97,8 @@ class GigaChat:
         }
         return await self.async_http_session.post(url=url, headers=headers, json=body)
 
-    def close(self):
+    def close(self) -> None:
         self.http_session.close()
 
-    async def aclose(self):
+    async def aclose(self) -> None:
         await self.async_http_session.aclose()
