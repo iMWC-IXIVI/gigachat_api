@@ -6,7 +6,7 @@ authors = [
     {name = "Andrey Vorobev", email = "v.andrei_dmitrievich@mail.ru"}
 ]
 license = {text = "MIT"}
-readme = "README.md"
+readme = "Done"
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.0"
