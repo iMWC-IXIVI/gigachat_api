@@ -7,6 +7,24 @@ from functools import wraps
 
 
 class GigaChat:
+    """
+    Асинхронный класс для обращения к API gigachat.
+
+    Атрибуты:
+        authorization: str - Ключ для авторизации в gigachat.
+        scope : str - К какой версии API отправляется запрос.
+
+    Методы:
+        get_models() -> httpx:Response:
+            Получить список моделей, который доступен данному ключу.
+
+        send_message(type_model: str = 'GigaChat', message: str = '', prompt: str = '') -> httpx.Response:
+            Ответ на вопрос от пользователя.
+            Аргументы:
+                type_model (str) - Название модели (по умолчанию GigaChat)
+                message (str) - Сообщение от пользователя (по умолчанию пустая строка)
+                prompt (str) - Инструкция для модели (по умолчанию пустая строка)
+    """
     certificate_path = Path(__file__).resolve().parent/'certificate'/'russian_trusted_root_ca.cer'
     http_session = httpx.Client(verify=str(certificate_path))
     async_http_session = httpx.AsyncClient(verify=str(certificate_path))
