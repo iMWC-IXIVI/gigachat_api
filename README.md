@@ -10,9 +10,9 @@
 
 * Необходимо зарегистрироваться на [сайте](https://giga.chat/)
 * Перейти в [режим разработчика](https://developers.sber.ru/studio/workspaces/) и авторизоваться там
-* Создать GigaChat API проект ![Создание API проекта](src/create_project_gigachat.png)
-* Перейти на настройки API проекта ![Настройки API проекта](src/project.jpg)
-* Получаем Authorization key ![Авторизационный ключ](src/authorization_key.jpg)
+* Создать GigaChat API проект ![Создание API проекта](images/create_project_gigachat.png)
+* Перейти на настройки API проекта ![Настройки API проекта](images/project.jpg)
+* Получаем Authorization key ![Авторизационный ключ](images/authorization_key.jpg)
 * Сохраняем Authorization key и Scope в переменные окружения.
 
 ```python
