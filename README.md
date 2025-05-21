@@ -24,16 +24,16 @@ from gigachat_api import GigaChat
 AUTH = '<key>'
 SCOPE = '<scope>'
 
-giga = GigaChat(authorization=AUTH, scope=SCOPE)
-
-
 async def main():
+    giga = await GigaChat.create(AUTH, SCOPE)
     models = await giga.get_models()  # Список всех поддерживающих моделей
     giga_answer = await giga.send_message('GigaChat', 'Помоги создать репозиторий', 'Ты профессионал платформы GitVerse')  # Ответ от нейросети
     print(models, giga_answer, sep='\n')
 
     
-asyncio.run(main())
+loop = asyncio.get_event_loop()
+asyncio.set_event_loop(loop)
+loop.run_until_complete(main())
 ```
 
 ---

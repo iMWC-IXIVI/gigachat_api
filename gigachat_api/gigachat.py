@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 import httpx
 import uuid
@@ -27,15 +29,24 @@ class GigaChat:
                 prompt (str) - Инструкция для модели (по умолчанию пустая строка)
     """
     certificate_path = Path(__file__).resolve().parent/'certificate'/'russian_trusted_root_ca.cer'
-    http_session = httpx.Client(verify=str(certificate_path))
     async_http_session = httpx.AsyncClient(verify=str(certificate_path))
 
-    def __init__(self, authorization: str, scope: str) -> None:
-        self.authorization = f'Basic {authorization}'
-        self.scope = scope
-        self.access_token, self.expire_token = self._get_access_token()
+    def __init__(self) -> None:
+        self.authorization = None
+        self.scope = None
+        self.access_token, self.expire_token = None, None
 
-    def _get_access_token(self) -> Tuple[str, int]:
+    @classmethod
+    async def create(cls, authorization: str, scope: str) -> GigaChat:
+        obj = cls()
+
+        obj.authorization = f'Basic {authorization}'
+        obj.scope = scope
+        obj.access_token, obj.expire_token = await obj._get_access_token()
+
+        return obj
+
+    async def _get_access_token(self) -> Tuple[str, int]:
         url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,7 +57,7 @@ class GigaChat:
         payload = {
             'scope': self.scope
         }
-        response = self.http_session.post(url=url, headers=headers, data=payload)
+        response = await self.async_http_session.post(url=url, headers=headers, data=payload)
 
         if response.status_code != 200:
             raise RuntimeError(f'Failed get a token - {response.status_code} - {response.text}')
@@ -64,9 +75,9 @@ class GigaChat:
     def refresh_token(func):
         @wraps(func)
         async def wrapper(self, *args, **kwargs):
-            now = int(time.time())
+            now = int(time.time() * 1000)
             if now >= self.expire_token - 60:
-                self.access_token, self.expire_token = self._get_access_token()
+                self.access_token, self.expire_token = await self._get_access_token()
             return await func(self, *args, **kwargs)
         return wrapper
 
@@ -96,9 +107,6 @@ class GigaChat:
             'update_interval': 0
         }
         return await self.async_http_session.post(url=url, headers=headers, json=body)
-
-    def close(self) -> None:
-        self.http_session.close()
 
     async def aclose(self) -> None:
         await self.async_http_session.aclose()
