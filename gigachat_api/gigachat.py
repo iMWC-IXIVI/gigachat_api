@@ -75,8 +75,8 @@ class GigaChat:
     def refresh_token(func):
         @wraps(func)
         async def wrapper(self, *args, **kwargs):
-            now = int(time.time() * 1000)
-            if now >= self.expire_token - 60:
+            now = int(time.time() * 1_000)
+            if now >= self.expire_token - 60_000:
                 self.access_token, self.expire_token = await self._get_access_token()
             return await func(self, *args, **kwargs)
         return wrapper
